@@ -59,12 +59,11 @@
     <h2>💬 Chat Nhóm 8B</h2>
     <div id="messages"></div>
     <input type="text" id="messageInput" placeholder="Nhập tin nhắn...">
-    <button onclick="sendMessage()">Gửi</button>
+    <button id="sendBtn">Gửi</button>
   </div>
 
-  <!-- Firebase SDK -->
+  <!-- Firebase SDK + Chat logic -->
   <script type="module">
-    // Firebase config
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
@@ -78,18 +77,17 @@
       measurementId: "G-3D6JFY7FBR"
     };
 
-    // Init Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-
     const messagesRef = collection(db, "messages");
 
     async function sendMessage() {
       const input = document.getElementById("messageInput");
-      if (input.value.trim() === "") return;
+      const text = input.value.trim();
+      if (text === "") return;
 
       await addDoc(messagesRef, {
-        text: input.value,
+        text: text,
         timestamp: Date.now()
       });
 
@@ -109,6 +107,9 @@
       });
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
     });
+
+    // Gắn sự kiện cho nút Gửi
+    document.getElementById("sendBtn").addEventListener("click", sendMessage);
   </script>
 </body>
 </html>
