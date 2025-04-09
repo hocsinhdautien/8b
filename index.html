@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Ảnh Lớp của Tôi</title>
+  <title>Ảnh Lớp của Tôi & Chat 8B</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -21,11 +21,94 @@
       font-size: 2.5rem;
       color: #ff7f50;
     }
+
+    #chat-box {
+      max-width: 500px;
+      margin: 50px auto;
+      text-align: left;
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    #messages {
+      height: 200px;
+      overflow-y: scroll;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: #f9f9f9;
+    }
+
+    input, button {
+      padding: 10px;
+      margin-top: 10px;
+      width: calc(100% - 22px);
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
   </style>
 </head>
 <body>
   <h1>🖼️ Bộ Sưu Tập Ảnh Lớp 8B</h1>
   <img src="anime1.png.png" alt="Anime 1">
   <img src="anime2.png.png" alt="Anime 2">
+
+  <div id="chat-box">
+    <h2>💬 Chat Nhóm 8B</h2>
+    <div id="messages"></div>
+    <input type="text" id="messageInput" placeholder="Nhập tin nhắn...">
+    <button onclick="sendMessage()">Gửi</button>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    // Firebase config
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBGpdi9yoBVXNfJ_JuKJpgvDXUgLU162QI",
+      authDomain: "group-chat-8b.firebaseapp.com",
+      projectId: "group-chat-8b",
+      storageBucket: "group-chat-8b.firebasestorage.app",
+      messagingSenderId: "764462372104",
+      appId: "1:764462372104:web:259b5752b809b86873c8bd",
+      measurementId: "G-3D6JFY7FBR"
+    };
+
+    // Init Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const messagesRef = collection(db, "messages");
+
+    async function sendMessage() {
+      const input = document.getElementById("messageInput");
+      if (input.value.trim() === "") return;
+
+      await addDoc(messagesRef, {
+        text: input.value,
+        timestamp: Date.now()
+      });
+
+      input.value = "";
+    }
+
+    const messagesDiv = document.getElementById("messages");
+    const q = query(messagesRef, orderBy("timestamp"));
+
+    onSnapshot(q, (snapshot) => {
+      messagesDiv.innerHTML = "";
+      snapshot.forEach(doc => {
+        const msg = doc.data().text;
+        const p = document.createElement("p");
+        p.textContent = msg;
+        messagesDiv.appendChild(p);
+      });
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    });
+  </script>
 </body>
 </html>
